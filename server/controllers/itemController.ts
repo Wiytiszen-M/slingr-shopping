@@ -37,15 +37,43 @@ const validateItem = (
   description: string,
   quantity: string
 ): string | null => {
-  if (!name || !quantity) return "Faltan campos requeridos (name, quantity)";
-  if (name.length > 25) return "El nombre no puede tener más de 25 caracteres";
+  if (!name || !quantity) return "Name and quantity are required.";
+  if (name.length > 25) return "Name must be 25 characters max.";
   if (description && description.length > 100)
-    return "La descripción no puede tener más de 100 caracteres";
+    return "Description must be 100 characters max.";
 
   const parsedQuantity = parseInt(quantity, 10);
   if (isNaN(parsedQuantity) || parsedQuantity < 1 || parsedQuantity > 99) {
-    return "La cantidad debe ser un número entre 1 y 99";
+    return "Quantity must be a number between 1 and 99.";
   }
 
   return null;
+};
+
+export const deleteItem = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+
+  if (!id || isNaN(parseInt(id, 10))) {
+    res.status(400).json({ message: "Invalid ID" });
+    return;
+  }
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM items WHERE id = $1 RETURNING *",
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      res.status(404).json({ message: "Item not found" });
+    } else {
+      res.status(200).json({ message: "Item deleted" });
+    }
+  } catch (error) {
+    console.error("Error: ", error);
+    res.status(500).json({ message: "Error trying to delete item" });
+  }
 };
