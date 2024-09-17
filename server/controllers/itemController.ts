@@ -77,3 +77,33 @@ export const deleteItem = async (
     res.status(500).json({ message: "Error trying to delete item" });
   }
 };
+
+export const updateItem = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+  const fieldsToUpdate = req.body;
+
+  try {
+    const setClause = Object.keys(fieldsToUpdate)
+      .map((key, index) => `${key} = $${index + 1}`)
+      .join(", ");
+
+    const values = Object.values(fieldsToUpdate);
+    values.push(id);
+
+    const query = `UPDATE items SET ${setClause} WHERE id = $${values.length} RETURNING *`;
+
+    const result = await pool.query(query, values);
+
+    if (result.rowCount === 0) {
+      res.status(404).json({ message: "Item not found" });
+    } else {
+      res.status(200).json({ message: "Item updated", item: result.rows[0] });
+    }
+  } catch (error) {
+    console.error("Error updating item: ", error);
+    res.status(500).json({ message: "Error updating item" });
+  }
+};
