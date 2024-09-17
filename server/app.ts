@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import itemRoutes from "./routes/itemRoutes";
 
 dotenv.config();
 
@@ -14,9 +15,7 @@ app.use(
   })
 );
 
-app.get("/", (req: Request, res: Response) => {
-  res.json({ message: "GET request successful!" });
-});
+app.use("/api", itemRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

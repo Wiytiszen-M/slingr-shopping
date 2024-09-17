@@ -1,0 +1,3 @@
+# GET request para obtener todos los items
+GET http://localhost:5000/api/items HTTP/1.1
+content-type: application/json
