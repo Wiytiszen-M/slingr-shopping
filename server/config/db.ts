@@ -1,5 +1,5 @@
-import { Pool } from "pg"; // Importar correctamente Pool desde pg
-import dotenv from "dotenv"; // Importar dotenv correctamente
+import { Pool } from "pg";
+import dotenv from "dotenv";
 
 dotenv.config();
 
