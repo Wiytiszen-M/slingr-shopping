@@ -3,6 +3,7 @@ export interface ShoppingItem {
   name: string;
   quantity: string;
   description: string;
+  cancelled?: boolean;
 }
 
 export interface ShoppingListState {

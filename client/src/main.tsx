@@ -5,16 +5,15 @@ import "./index.css";
 import { Provider } from "react-redux";
 import { store } from "@/store/store";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-const queryClient = new QueryClient();
+import { ThemeProvider } from "@mui/material";
+import theme from "./styles/theme";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
         <App />
-      </QueryClientProvider>
+      </ThemeProvider>
     </Provider>
   </StrictMode>
 );

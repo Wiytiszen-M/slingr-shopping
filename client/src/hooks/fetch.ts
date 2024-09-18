@@ -45,11 +45,11 @@ export const usePut = <T>(
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const putData = async () => {
+  const putData = async (putUrl: string, putData: Record<string, any>) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await apiClient.put<T>(url, data, { ...config });
+      const result = await apiClient.put<T>(putUrl, putData, { ...config });
       setResponse(result.data);
     } catch (err) {
       setError(err as Error);
@@ -66,11 +66,11 @@ export const useDelete = <T>(url: string, config = {}) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const deleteData = async () => {
+  const deleteData = async (deleteUrl: string) => {
     setLoading(true);
     setError(null);
     try {
-      const result = await apiClient.delete<T>(url, { ...config });
+      const result = await apiClient.delete<T>(deleteUrl, { ...config });
       setResponse(result.data);
     } catch (err) {
       setError(err as Error);
@@ -80,4 +80,26 @@ export const useDelete = <T>(url: string, config = {}) => {
   };
 
   return { deleteData, response, loading, error };
+};
+
+export const usePost = <T>(url: string, config = {}) => {
+  const [response, setResponse] = useState<T | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const postData = async (postData: Record<string, any>) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await apiClient.post<T>(url, postData, { ...config });
+      setResponse(result.data);
+      return result.data;
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { postData, response, loading, error };
 };

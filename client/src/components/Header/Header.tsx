@@ -4,10 +4,10 @@ const Header = () => {
   return (
     <AppBar
       position="fixed"
-      sx={{ backgroundColor: "#4D81B7", boxShadow: "none" }}
+      sx={{ top: 0, backgroundColor: "#4D81B7", boxShadow: "none" }}
     >
       <Toolbar>
-        <Typography variant="h6" component="div">
+        <Typography variant="h1" component="div">
           SHOPPING LIST
         </Typography>
       </Toolbar>

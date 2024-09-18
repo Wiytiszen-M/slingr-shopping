@@ -9,53 +9,86 @@ import {
   Select,
   FormControl,
   InputLabel,
+  IconButton,
+  Box,
+  Typography,
 } from "@mui/material";
-import Textarea from "@mui/joy/Textarea";
 
 import { Formik, Form, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { Typography } from "@mui/joy";
 import { ShoppingItem } from "@/types";
+import { CloseOutlined } from "@mui/icons-material";
 
 const validationSchema = Yup.object({
-  name: Yup.string().required("El nombre es requerido"),
+  name: Yup.string().trim().required("Name is required"),
   description: Yup.string()
-    .max(100, "Máximo 100 caracteres")
-    .required("La descripción es requerida"),
-  quantity: Yup.string().required("Por favor selecciona una cantidad"),
+    .max(100, "Maximum 100 characters")
+    .required("Description is required"),
+  quantity: Yup.string().required("Please select a quantity"),
 });
-
-const initialValues: ShoppingItem = {
-  name: "",
-  description: "",
-  quantity: "",
-};
 
 interface AddItemModalProps {
   open: boolean;
   onClose: () => void;
+  currentItem?: ShoppingItem | null;
+  onSubmit: (item: ShoppingItem) => void;
 }
 
-const AddItemModal = ({ open, onClose }: AddItemModalProps) => {
+const quantityOptions = [1, 2, 3];
+
+const AddItemModal = ({
+  open,
+  onClose,
+  currentItem,
+  onSubmit,
+}: AddItemModalProps) => {
+  const isEditing = Boolean(currentItem);
+
   const handleSubmit = (
     values: ShoppingItem,
     { setSubmitting }: FormikHelpers<ShoppingItem>
   ) => {
-    console.log(values);
+    onSubmit(values);
     setSubmitting(false);
     onClose();
   };
 
+  const initialValues: ShoppingItem = currentItem || {
+    name: "",
+    description: "",
+    quantity: "",
+  };
+
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Completa el formulario</DialogTitle>
-      <DialogContent>
+      <DialogTitle>
+        <Typography variant="h3" color="#5C6269">
+          SHOPPING LIST
+        </Typography>
+        <IconButton
+          onClick={onClose}
+          sx={{
+            position: "absolute",
+            right: 8,
+            top: 8,
+          }}
+        >
+          <CloseOutlined />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent dividers>
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="h3">
+            {isEditing ? "Edit an Item" : "Add an Item"}
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            {isEditing ? "Edit your item below" : "Add your new item below"}
+          </Typography>
+        </Box>
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
-          validateOnBlur={false}
-          validateOnChange={false}
         >
           {({
             values,
@@ -67,94 +100,92 @@ const AddItemModal = ({ open, onClose }: AddItemModalProps) => {
             handleSubmit,
           }) => (
             <Form onSubmit={handleSubmit}>
-              <TextField
-                autoFocus
-                margin="dense"
-                name="name"
-                label="Nombre"
-                type="text"
-                fullWidth
-                variant="outlined"
-                value={values.name}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={touched.name && Boolean(errors.name)}
-                helperText={touched.name && errors.name}
-              />
-
-              <FormControl
-                fullWidth
-                margin="dense"
-                error={touched.quantity && Boolean(errors.quantity)}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1,
+                  minWidth: "500px",
+                }}
               >
-                <InputLabel>How many?</InputLabel>
-                <Select
-                  name="quantity"
-                  value={values.quantity}
+                <TextField
+                  margin="dense"
+                  name="name"
+                  label="Nombre"
+                  type="text"
+                  fullWidth
+                  value={values.name}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  label="How many?"
+                  error={touched.name && Boolean(errors.name)}
+                  helperText={touched.name && errors.name}
+                />
+                <TextField
+                  margin="dense"
+                  name="description"
+                  label="Descripción"
+                  type="text"
+                  value={values.description}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  multiline
+                  rows={4}
+                  fullWidth
+                  variant="outlined"
+                  error={touched.description && Boolean(errors.description)}
+                  helperText={touched.description && errors.description}
+                />
+
+                <FormControl
+                  fullWidth
+                  margin="dense"
+                  error={touched.quantity && Boolean(errors.quantity)}
                 >
-                  <MenuItem value="">
-                    <em>How many?</em>
-                  </MenuItem>
-                  <MenuItem value="1">1</MenuItem>
-                  <MenuItem value="2">2</MenuItem>
-                  <MenuItem value="3">3</MenuItem>
-                </Select>
-                {touched.quantity && errors.quantity && (
-                  <Typography
-                    level="body-xs"
-                    sx={{ fontSize: "12px", color: "danger", mt: 0.5 }}
+                  <InputLabel id="quantity-label">Cantidad</InputLabel>
+                  <Select
+                    labelId="quantity-label"
+                    id="quantity"
+                    name="quantity"
+                    value={values.quantity}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    label="Cantidad"
                   >
-                    {errors.quantity}
-                  </Typography>
-                )}
-              </FormControl>
-
-              <Textarea
-                placeholder="Descripción"
-                value={values.description}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                name="description"
-                minRows={2}
-                maxRows={4}
-                sx={{
-                  borderColor:
-                    touched.description && Boolean(errors.description)
-                      ? "red"
-                      : "",
-                  borderWidth:
-                    touched.description && Boolean(errors.description)
-                      ? "1px"
-                      : "",
-                  borderStyle:
-                    touched.description && Boolean(errors.description)
-                      ? "solid"
-                      : "",
-                }}
-                endDecorator={
-                  <Typography level="body-xs" sx={{ ml: "auto" }}>
-                    {values.description.length}/100
-                  </Typography>
-                }
-              />
-              {touched.description && errors.description && (
-                <Typography
-                  level="body-xs"
-                  sx={{ fontSize: "12px", color: "danger", mt: 0.5 }}
+                    {quantityOptions.map((option) => (
+                      <MenuItem key={option} value={option}>
+                        {option}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {touched.quantity && errors.quantity && (
+                    <Typography
+                      variant="body2"
+                      sx={{ fontSize: "12px", color: "red", mt: 0.5 }}
+                    >
+                      {errors.quantity}
+                    </Typography>
+                  )}
+                </FormControl>
+              </Box>
+              <DialogActions sx={{ mt: 20 }}>
+                <Button
+                  onClick={onClose}
+                  color="inherit"
+                  variant="text"
+                  sx={{ textTransform: "none" }}
                 >
-                  {errors.description}
-                </Typography>
-              )}
-
-              <DialogActions>
-                <Button onClick={onClose} color="primary">
-                  Cancelar
+                  <Typography variant="body1">Cancelar</Typography>
                 </Button>
-                <Button type="submit" color="primary" disabled={isSubmitting}>
-                  Enviar
+                <Button
+                  type="submit"
+                  color="primary"
+                  variant="contained"
+                  disabled={isSubmitting}
+                  sx={{ textTransform: "none" }}
+                >
+                  <Typography variant="body1" color="#ffff">
+                    {isEditing ? "Actualizar" : "Enviar"}
+                  </Typography>
                 </Button>
               </DialogActions>
             </Form>
